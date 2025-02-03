@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@modal/*": ["./src/pages/modal/*"],
+      "@components/*": ["./src/components/*"],
     }
   }
 }

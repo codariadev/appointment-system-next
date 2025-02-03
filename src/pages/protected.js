@@ -1,4 +1,4 @@
-import PrivateRoute from '../components/PrivateRoute';
+import PrivateRoute from '../components/ProtectedRoute';
 
 const ProtectedPage = () => {
   return (

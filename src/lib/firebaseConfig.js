@@ -9,11 +9,10 @@ const firebaseConfig = {
     storageBucket: "barber-system-90413.firebasestorage.app",
     messagingSenderId: "472314925174",
     appId: "1:472314925174:web:8afab6a12e498693714f57"
-  };
+};
 
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-export { app, db, collection, getDocs, addDoc, deleteDoc, doc };
+export { app, db, auth, collection, getDocs, addDoc, deleteDoc, doc };
