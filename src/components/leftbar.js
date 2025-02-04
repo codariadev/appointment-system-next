@@ -124,7 +124,7 @@ const LeftBar = () => {
           <ul className="list-none p-1">
             <li className="menu-item">
               <span
-                className="block py-4 text-center cursor-pointer rounded transition-all duration-300 text-red-500"
+                className="block py-4 text-center cursor-pointer rounded transition-all duration-300 text-red-300"
                 onClick={handleLogout} // Chama a função de logout
               >
                 Sair

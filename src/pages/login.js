@@ -54,6 +54,7 @@ const LoginPage = () => {
 
     } catch (error) {
       console.error("❌ Erro ao fazer login:", error.message);
+      alert('Credenciais incorretos.');
     } finally {
       setLoading(false);
     }
