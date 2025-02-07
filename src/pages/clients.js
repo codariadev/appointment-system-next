@@ -30,6 +30,7 @@ export default function Clients() {
 
         if (typeof window !== "undefined") {
             Modal.setAppElement('#root');
+        }
 
         const loadClients = async () => {
             try {
