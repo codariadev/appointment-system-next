@@ -59,12 +59,18 @@ const Payment = () => {
   const loadEmployees = async () => {
     try {
       const employees = await fetchEmployees();
-      const filteredEmployee = (employees || []).filter(employee => employee.cargo === 'Barbeiro').map(employee => employee.nome);
+      const filteredEmployee = (employees || [])
+        .filter(employee => employee.role === 'Barbeiro' || employee.role === 'Atendente')
+        .map(employee => ({
+          name: employee.name,
+          role: employee.role
+        }));
       setEmployee(filteredEmployee);
     } catch (error) {
       console.error('Erro ao carregar barbeiros:', error);
     }
   };
+  
 
   useEffect(() => {
     loadEmployees();
@@ -146,17 +152,21 @@ const Payment = () => {
     const localDate = new Date();
     const formattedDate = format(localDate, 'dd/MM/yyyy', { locale: ptBR });
     const formmatedTime = format(localDate, 'HH:mm:ss');
-
+  
     if (!selectedClient) {
       alert('Por favor, selecione um cliente antes de finalizar a venda.');
       return;
     }
-
+  
+    // Verifique se o selectedEmployee é um objeto e não uma string
+    const employeeName = selectedEmployee?.name || selectedEmployee;
+    console.log(selectedEmployee);
+  
     const saleData = {
       clientId: selectedClient.id,
       clientName: selectedClient.name,
       clientCpf: selectedClient.cpf,
-      employee: selectedEmployee,
+      employee: employeeName,  // Agora passando o nome do funcionário corretamente
       total: total,
       items: cart,
       date: {
@@ -164,7 +174,7 @@ const Payment = () => {
         hora: formmatedTime,
       },
     };
-
+  
     try {
       await saveSales(saleData);
       alert('Venda finalizada com sucesso!');
@@ -179,6 +189,7 @@ const Payment = () => {
       console.error('Erro ao salvar venda:', error);
     }
   };
+  
 
   const formatCpfNumber = (cpf) => {
     if (!cpf) return '';
@@ -207,7 +218,7 @@ const Payment = () => {
 
   return (
   <Layout>
-    <div className="p-6 bg-gray-100 w-full h-full">
+    <div className="p-6 bg-gray-100 w-full h-full text-black">
       <h1 className="text-2xl font-bold text-center mb-6">PDV - Pagamento</h1>
       <div className="flex space-x-8 h-[calc(100vh-6rem)]"> {/* Ajuste a altura conforme necessário */}
         {/* Carrinho */}
@@ -266,7 +277,7 @@ const Payment = () => {
                 <option value="">Selecione um funcionário</option>
                 {Employee.map((employee, index) => (
                   <option key={index} value={employee}>
-                    {employee}
+                    {employee.name} - {employee.role}
                   </option>
                 ))}
               </select>

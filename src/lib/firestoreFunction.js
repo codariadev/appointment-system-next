@@ -2,7 +2,6 @@ import { db } from './firebaseConfig';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, getDoc, getFirestore } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 
 
 // Função para configurar a persistência ao logar
@@ -333,17 +332,23 @@ const getEmployeesCollectionPath = async () => {
   return `${companyCollectionPath}/employees`;
 };
 
+
+
 export const fetchEmployees = async () => {
-  checkAuthAndRun(async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, await getEmployeesCollectionPath()));
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      alert("Erro ao buscar funcionários.");
-      console.error(error);
-      return [];
-    }
-  });
+  const employeesCollectionPath = await getEmployeesCollectionPath();
+  if (!employeesCollectionPath) {
+    alert("Usuário não autenticado.");
+    window.location.href = "/login";
+    return [];
+  }
+
+  const getEmployeesCollection = collection(db, employeesCollectionPath);
+  const snapshot = await getDocs(getEmployeesCollection);
+  const employeesList = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  return employeesList;
 };
 
 export const addEmployee = async (employeeData) => {

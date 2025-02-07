@@ -43,10 +43,10 @@ const Home = () => {
       }
     };
   
-    if (authorized) {
+    if (authorized) {                                                                     
         loadData();
       }
-  }, [authorized, events, clients]); // O timer deve ser reiniciado sempre que 'authorized' mudar
+  }, [authorized]); // O timer deve ser reiniciado sempre que 'authorized' mudar
   
 
   if (loading) {
@@ -79,7 +79,7 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className="p-5 bg-gray-100 w-full mx-auto h-screen">
+      <div className="p-5 bg-gray-100 w-full mx-auto h-screen text-black">
         <header className="bg-blue-500 text-white p-5 rounded-lg text-center">
           <h1 className="text-2xl font-bold">Bem-vindo (a), {userName}!</h1>
           <p>Hoje é {new Date().toLocaleDateString('pt-BR')}</p>

@@ -120,7 +120,7 @@ export default function Clients() {
 
     return (
         <Layout>
-            <div className="p-5 flex flex-col items-center w-full h-full rounded" id="root">
+            <div className="p-5 flex flex-col items-center w-full h-full rounded text-black bg-white" id="root">
                 <div className="text-center mb-6 bg-gray-100 p-8 rounded-lg shadow-lg w-full">
                     <h1 className="text-2xl font-bold">Clientes</h1>
                     <p className="text-gray-600">Gerencie seus clientes cadastrados</p>

@@ -14,7 +14,7 @@ const LoginPage = () => {
   const db = getFirestore(app);
   const router = useRouter();
 
-  const [inputEmail, setInputEmail] = useState('alves2@system.com');
+  const [inputEmail, setInputEmail] = useState('lucas@barbersc.com');
   const [inputPassword, setInputPassword] = useState('123123');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -61,9 +61,9 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-200">
+    <div className="flex justify-center items-center h-screen bg-gray-200 text-black">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>

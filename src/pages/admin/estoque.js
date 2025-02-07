@@ -143,7 +143,7 @@ export default function Stock() {
 
     return (
         <Layout>
-        <div className="p-5 flex flex-col gap-2 items-center w-full h-full rounded">
+        <div className="p-5 flex flex-col gap-2 items-center w-full h-full rounded text-black bg-white">
             <div className="text-center mb-6 bg-gray-100 p-8 rounded-lg shadow-lg w-full">
                 <h1 className="text-2xl font-bold">Produtos e Serviços</h1>
                 <p className="text-gray-600">Gerencie serviços disponíveis e os produtos</p>

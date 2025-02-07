@@ -197,7 +197,7 @@ const Appointments = () => {
 
   return (
     <Layout>
-      <div className="p-5 flex flex-col gap-2 items-center w-full h-full rounded" id="root">
+      <div className="p-5 flex flex-col gap-2 items-center w-full h-full rounded text-black bg-white" id="root">
         <div className="text-center mb-6 bg-gray-100 p-8 rounded-lg shadow-lg w-full">
           <h1 className="text-2xl font-bold">Agendamentos</h1>
           <p className="text-gray-600">Gerencie seus horários e compromissos</p>
@@ -207,7 +207,7 @@ const Appointments = () => {
         <Modal
           isOpen={modalIsOpen}
           onRequestClose={handleCloseModal}
-          className="fixed top-1/2 left-1/2 translate-x-[-30%] translate-y-[-50%] w-1/2 bg-[#fff] rounded-8 shadow-2xl p-8 z-10 flex flex-col"
+          className="fixed top-1/2 left-1/2 translate-x-[-30%] translate-y-[-50%] w-1/2 bg-[#fff] rounded-8 shadow-2xl p-8 z-10 flex flex-col text-black"
           contentLabel="Novo Agendamento"
         >
           <h2 className='text-center font-bold'>{newEvent.id ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
@@ -275,11 +275,14 @@ const Appointments = () => {
           className=" w-full h-full bg-[#fff] rounded-8 shadow-2xl p-8 z-10 flex flex-col justify-center items-center bg-transparent"
           contentLabel="Novo Agendamento"
         >
-          <div className="w-[90%] h-[90%] bg-gray-200 p-4 rounded-lg shadow-md">
+          <div className="w-[90%] h-[90%] bg-gray-200 p-4 rounded-lg shadow-md text-black">
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
-            events={events}
+            events={events.map((event) => ({
+              ...event,
+              key: event.id, // Atribuindo uma chave única a cada evento
+            }))}
             dateClick={handleDateClick}
             buttonText={{today: 'Hoje', month: 'Mês', week: 'Semana', day: 'dia'}}
             headerToolbar={{

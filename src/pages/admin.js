@@ -47,7 +47,7 @@ if (!authorized) {
 
   return (
     <Layout>
-      <div className="p-5 flex flex-col items-center w-full h-full rounded">
+      <div className="p-5 flex flex-col items-center w-full h-full rounded text-black bg-white">
       <div className="text-center mb-6 bg-gray-100 p-8 rounded-lg shadow-lg w-full">
           <h1 className="text-2xl font-bold">Administração</h1>
       </div>
