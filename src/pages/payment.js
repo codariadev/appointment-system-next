@@ -70,7 +70,6 @@ const Payment = () => {
       console.error('Erro ao carregar barbeiros:', error);
     }
   };
-  
 
   useEffect(() => {
     loadEmployees();
@@ -157,16 +156,12 @@ const Payment = () => {
       alert('Por favor, selecione um cliente antes de finalizar a venda.');
       return;
     }
-  
-    // Verifique se o selectedEmployee é um objeto e não uma string
-    const employeeName = selectedEmployee?.name || selectedEmployee;
-    console.log(selectedEmployee);
-  
+
     const saleData = {
       clientId: selectedClient.id,
       clientName: selectedClient.name,
       clientCpf: selectedClient.cpf,
-      employee: employeeName,  // Agora passando o nome do funcionário corretamente
+      employee: Employee.map(emp => emp.name),
       total: total,
       items: cart,
       date: {
@@ -189,7 +184,6 @@ const Payment = () => {
       console.error('Erro ao salvar venda:', error);
     }
   };
-  
 
   const formatCpfNumber = (cpf) => {
     if (!cpf) return '';
@@ -217,99 +211,96 @@ const Payment = () => {
   }
 
   return (
-  <Layout>
-    <div className="p-6 bg-gray-100 w-full h-full text-black">
-      <h1 className="text-2xl font-bold text-center mb-6">PDV - Pagamento</h1>
-      <div className="flex space-x-8 h-[calc(100vh-6rem)]"> {/* Ajuste a altura conforme necessário */}
-        {/* Carrinho */}
-        <div className="w-2/3 p-4 bg-white shadow-md rounded-lg flex flex-col">
-          <h2 className="text-xl font-semibold text-center mb-4">Carrinho</h2>
-          <ul className="space-y-3 flex-1 overflow-y-auto"> {/* Flex-1 e overflow para rolagem */}
-            {cart.map((item, index) => (
-              <div className="flex justify-between items-center" key={index}>
-                <li>{item.name} - R$ {item.price.toFixed(2)}</li>
-                <button className="text-red-500" onClick={() => deleteCart(index)}>X</button>
-              </div>
-            ))}
-          </ul>
-        </div>
+    <Layout>
+      <div className="p-6 bg-gray-100 w-full h-full text-black">
+        <h1 className="text-2xl font-bold text-center mb-6">PDV - Pagamento</h1>
+        <div className="flex space-x-8 h-[calc(100vh-6rem)]">
+          <div className="w-2/3 p-4 bg-white shadow-md rounded-lg flex flex-col">
+            <h2 className="text-xl font-semibold text-center mb-4">Carrinho</h2>
+            <ul className="space-y-3 flex-1 overflow-y-auto">
+              {cart.map((item, index) => (
+                <div className="flex justify-between items-center" key={index}>
+                  <li>{item.name} - R$ {item.price.toFixed(2)}</li>
+                  <button className="text-red-500" onClick={() => deleteCart(index)}>X</button>
+                </div>
+              ))}
+            </ul>
+          </div>
 
-        {/* Selecção de cliente e funcionário */}
-        <div className="w-1/3 p-4 bg-gray-800 text-white rounded-lg">
-          <div className="space-y-4">
-            {/* Selecção de cliente */}
-            <div>
-              <label className="block text-center mb-2">Selecione o Cliente:</label>
-              <select
-                className="w-full p-2 bg-gray-700 text-white rounded"
-                onChange={(e) => handleClientSelection(e.target.value)}
-                value={selectedClient?.id || ''}
-              >
-                <option value="">-- Selecione --</option>
-                {clients.map(client => (
-                  <option key={client.id} value={client.id}>
-                    {client.name}
-                  </option>
-                ))}
-                <option value="avulso">Cliente Avulso</option>
-              </select>
-              <div className="mt-4">
-                {selectedClient ? (
-                  <div>
-                    <p><strong>Cliente:</strong> {selectedClient.name}</p>
-                    <p><strong>CPF:</strong> {formatCpfNumber(selectedClient.cpf)}</p>
-                  </div>
-                ) : (
-                  <p>Nenhum cliente selecionado</p>
-                )}
-              </div>
-            </div>
-
-            {/* Selecção de funcionário */}
-            <div>
-              <label htmlFor="employee-select" className="block text-center mb-2">Atribuir Funcionário:</label>
-              <select
-                id="employee-select"
-                className="w-full p-2 bg-gray-700 text-white rounded"
-                value={selectedEmployee}
-                onChange={(e) => setSelectedEmployee(e.target.value)}
-              >
-                <option value="">Selecione um funcionário</option>
-                {Employee.map((employee, index) => (
-                  <option key={index} value={employee}>
-                    {employee.name} - {employee.role}
-                  </option>
-                ))}
-              </select>
-              <div className="mt-6">
-                <h2 className="text-xl font-semibold">Busca de Produtos/Serviços</h2>
-                <input
-                  type="text"
-                  className="w-full p-2 mt-2 border border-gray-300 rounded text-black"
-                  placeholder="Digite o produto/serviço..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  onKeyDown={handleKeyDown}
-                />
+          <div className="w-1/3 p-4 bg-gray-800 text-white rounded-lg">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-center mb-2">Selecione o Cliente:</label>
+                <select
+                  className="w-full p-2 bg-gray-700 text-white rounded"
+                  onChange={(e) => handleClientSelection(e.target.value)}
+                  value={selectedClient?.id || ''}
+                >
+                  <option value="">-- Selecione --</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.name}
+                    </option>
+                  ))}
+                  <option value="avulso">Cliente Avulso</option>
+                </select>
                 <div className="mt-4">
-                  {searchTerm &&
-                    filteredProducts.map((product, index) => (
-                      <div
-                        key={index}
-                        className={`p-2 cursor-pointer ${highlightIndex === index ? 'bg-black' : ''}`}
-                        onClick={() => addToCart(product)}
-                        onMouseEnter={() => setHighlightIndex(index)}
+                  {selectedClient ? (
+                    <div>
+                      <p><strong>Cliente:</strong> {selectedClient.name}</p>
+                      <p><strong>CPF:</strong> {formatCpfNumber(selectedClient.cpf)}</p>
+                    </div>
+                  ) : (
+                    <p>Nenhum cliente selecionado</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="employee-select" className="block text-center mb-2">Atribuir Funcionário:</label>
+                <select
+                  id="employee-select"
+                  className="w-full p-2 bg-gray-700 text-white rounded"
+                  value={selectedEmployee}
+                  onChange={(e) => setSelectedEmployee(e.target.value)}
+                >
+                  <option value="">Selecione um funcionário</option>
+                  {Employee.map((employee, index) => (
+                    <option key={index} value={employee}>
+                      {employee.name} - {employee.role}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-6">
+                  <h2 className="text-xl font-semibold">Busca de Produtos/Serviços</h2>
+                  <input
+                    type="text"
+                    className="w-full p-2 mt-2 border border-gray-300 rounded text-black"
+                    placeholder="Digite o produto/serviço..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <div className="mt-4">
+                    {searchTerm &&
+                      filteredProducts.map((product, index) => (
+                        <div
+                          key={index}
+                          className={`p-2 cursor-pointer ${highlightIndex === index ? 'bg-black' : ''}`}
+                          onClick={() => addToCart(product)}
+                          onMouseEnter={() => setHighlightIndex(index)}
+                        >
+                          {product.name} - R$ {product.price.toFixed(2)}
+                        </div>
+                      ))}
+                    <div className="mt-6 text-center">
+                      <button
+                        onClick={handleSale}
+                        className="p-2 bg-blue-500 text-white rounded-lg"
                       >
-                        {product.name} - R$ {product.price.toFixed(2)}
-                      </div>
-                    ))}
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={handleSale}
-                      className="p-2 bg-blue-500 text-white rounded-lg"
-                    >
-                      Finalizar Venda
-                    </button>
+                        Finalizar Venda
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -317,9 +308,8 @@ const Payment = () => {
           </div>
         </div>
       </div>
-    </div>
-  </Layout>
-);
+    </Layout>
+  );
 };
 
 export default Payment;

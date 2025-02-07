@@ -29,8 +29,7 @@ export default function Clients() {
         }
 
         if (typeof window !== "undefined") {
-            Modal.setAppElement('#root'); // Define o app element, assegurando que #root exista
-        }
+            Modal.setAppElement('#root');
 
         const loadClients = async () => {
             try {

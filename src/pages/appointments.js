@@ -1,20 +1,17 @@
-
 'use client'
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import FullCalendar from '@fullcalendar/react'; 
-import dayGridPlugin from '@fullcalendar/daygrid'; 
-import timeGridPlugin from '@fullcalendar/timegrid'; 
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import Modal from 'react-modal';
 import Select from 'react-select';
 import { format } from 'date-fns';
-
-
-
 import { saveAppointment, fetchAppointments, fetchClients, deleteAppointment, fetchProducts } from '@lib/firestoreFunction';
 import Layout from '@components/layout';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/router';
+import AppointmentsDetails from './modal/appointmentsDetails';
 
 const Appointments = () => {
   const [events, setEvents] = useState([]);
@@ -24,88 +21,74 @@ const Appointments = () => {
   const [newEvent, setNewEvent] = useState({ start: '', end: '', costumer: '', cpf: '', service: '' });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [calendarIsOpen, setCalendarIsOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
 
-   const { user, loading } = useAuth();
-      const router = useRouter();
-      const [authorized, setAuthorized] = useState(false);
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        router.push("/login");
+      } else if (user.nivel < 1) {
+        alert("Acesso Negado");
+        router.push('/login');
+      } else {
+        setAuthorized(true);
+      }
+    }
+  }, [user, loading, router]);
 
-    useEffect(() => {
-        if (!loading) {
-          if (!user) {
-            router.push("/login");
-          } else if (user.nivel < 1) {
-            alert("Acesso Negado");
-            router.push('/login');
-          } else {
-            setAuthorized(true);
-          }
-        }
-      }, [user, loading, router]);
-
-      useEffect(() => {
-        Modal.setAppElement('#root');
-        const loadAppointmentsAndProducts = async () => {
-            try {
-              const appointments = await fetchAppointments();
-              const mappedAppointments = appointments.map((appointment) => ({
-                ...appointment,
-                title: appointment.costumer,
-              }));
-      
-              setEvents(mappedAppointments);
-      
-              const clientsData = await fetchClients();
-              const formattedClients = clientsData.map((client) => ({
-                value: client.name,
-                label: client.name,
-                cpf: client.cpf
-              }));
-              setClients(formattedClients);
-      
-              const productsData = await fetchProducts();
-              const filteredServices = productsData
-                .filter((product) => product.category == 'Serviço')
-                .map((product) => ({
-                  value: product.name,
-                  label: `${product.name} - R$ ${product.price.toFixed(2)}`,
-                  price: product.price,
-                }));
-      
-                setServices(filteredServices);
-      
-            } catch (error) {
-              console.log('Erro ao carregar dados', error);
-            }
-        };
-      
-        if (authorized) {
-          loadAppointmentsAndProducts();  // Carrega os dados assim que o usuário for autorizado
-        }
-      }, [authorized]);
+  useEffect(() => {
+    Modal.setAppElement('#root');
+    const loadAppointmentsAndProducts = async () => {
+      try {
+        const appointments = await fetchAppointments();
+        const mappedAppointments = appointments.map((appointment) => ({
+          ...appointment,
+          title: appointment.costumer,
+        }));
+        setEvents(mappedAppointments);
+        const clientsData = await fetchClients();
+        const formattedClients = clientsData.map((client) => ({
+          value: client.name,
+          label: client.name,
+          cpf: client.cpf
+        }));
+        setClients(formattedClients);
+        const productsData = await fetchProducts();
+        const filteredServices = productsData
+          .filter((product) => product.category == 'Serviço')
+          .map((product) => ({
+            value: product.name,
+            label: `${product.name} - R$ ${product.price.toFixed(2)}`,
+            price: product.price,
+          }));
+        setServices(filteredServices);
+      } catch (error) {
+        console.log('Erro ao carregar dados', error);
+      }
+    };
+    if (authorized) {
+      loadAppointmentsAndProducts();
+    }
+  }, [authorized]);
 
   if (loading) {
-
-      const timer = setTimeout(() => 1000);
-      const clearTime = clearTimeout(timer);
-
+    const timer = setTimeout(() => 1000);
+    const clearTime = clearTimeout(timer);
     return (
       <div className='w-full h-screen flex justify-center items-center'>
-        <div
-          className="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#1e40af_0deg,#1e40af_0deg,transparent_180deg,transparent_360deg)]"
-        >
-          <span
-            className="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#3b82f6_0deg,#3b82f6_0deg,transparent_180deg,transparent_360deg)]"
-          >
-          </span>
+        <div className="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#1e40af_0deg,#1e40af_0deg,transparent_180deg,transparent_360deg)]">
+          <span className="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#3b82f6_0deg,#3b82f6_0deg,transparent_180deg,transparent_360deg)]"></span>
         </div>
       </div>
-
     )
   }
   if (!authorized) {
     return <div>Verificando permissão...</div>;
   }
-
 
   const handleOpenModal = (appointment = { start: '', end: '', costumer: '', id: '' }) => {
     setNewEvent(appointment);
@@ -116,13 +99,13 @@ const Appointments = () => {
     setModalIsOpen(false);
     setNewEvent({ start: '', end: '', costumer: '' });
   };
+
   const handleOpenCalendar = () => {
     setCalendarIsOpen(true);
   };
 
   const handleCloseCalendar = () => {
     setCalendarIsOpen(false);
-
   };
 
   const handleCloseCalendarOpenModal = () => {
@@ -135,7 +118,6 @@ const Appointments = () => {
       await deleteAppointment(appointment);
       setEvents((prevEvents) => prevEvents.filter((event) => event.id !== appointment.id));
       alert('Agendamento deletado com sucesso.');
-      
     } catch (error) {
       console.log('Erro ao deletar:', error);
     }
@@ -146,7 +128,6 @@ const Appointments = () => {
       alert('Preencha todos os campos antes de salvar.');
       return;
     }
-  
     try {
       const selectedService = services.find((service) => service.value === newEvent.service);
       const appointment = {
@@ -156,10 +137,7 @@ const Appointments = () => {
         cpf: newEvent.cpf,
         service: newEvent.service
       };
-  
-      // Verifique se o ID está presente para salvar ou atualizar
       if (newEvent.id) {
-        // Atualiza agendamento existente
         await saveAppointment(appointment, newEvent.id);
         setEvents((preEvents) => 
           preEvents.map((event) =>
@@ -168,12 +146,10 @@ const Appointments = () => {
         );
         alert('Agendamento atualizado com sucesso.');
       } else {
-        // Cria novo agendamento
         const id = await saveAppointment(appointment);
         setEvents((preEvents) => [...preEvents, { id, ...appointment }]);
         alert('Agendamento salvo com sucesso');
       }
-  
       if (selectedService) {
         setServiceDetails((prevDetails) => [
           ...prevDetails,
@@ -188,12 +164,23 @@ const Appointments = () => {
       console.log('Erro ao salvar o agendamento', error);
     }
   };
-  
 
-  const handleDateClick = (info) => {
-    alert(`Data clicada: ${info.dateStr}`);
+  const handleEventClick = (clickInfo) => {
+    setSelectedEvent({
+      id: clickInfo.event.id,
+      start: clickInfo.event.startStr,
+      end: clickInfo.event.endStr,
+      costumer: clickInfo.event.title,
+    });
+    setIsModalOpen(true);
+    return (
+      <AppointmentsDetails
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        event={selectedEvent}
+      />
+    )
   };
-
 
   return (
     <Layout>
@@ -260,7 +247,6 @@ const Appointments = () => {
               />
             </div>
             <div className="input-content flex flex-col space-y-3">
-              
             </div>
           </form>
           <div className="modal-actions flex justify-end space-x-3 mt-4">
@@ -276,89 +262,92 @@ const Appointments = () => {
           contentLabel="Novo Agendamento"
         >
           <div className="w-[90%] h-[90%] bg-gray-200 p-4 rounded-lg shadow-md text-black">
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            events={events.map((event) => ({
-              ...event,
-              key: event.id, // Atribuindo uma chave única a cada evento
-            }))}
-            dateClick={handleDateClick}
-            buttonText={{today: 'Hoje', month: 'Mês', week: 'Semana', day: 'dia'}}
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay',
-            }}
-            locale="pt" // Aqui está a configuração para português
-            eventContent={(eventInfo) => {
-              const isPast = new Date(eventInfo.event.start) < new Date();
-              return (
-                <div className={`font-[10px] ${isPast ? 'text-red-500' : ''}`}>
-                  <span>{eventInfo.event.title.split(' ')[0]}</span>
-                </div>
-              );
-            }}
-            height="95%"
-          />
-
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              events={events.map((event) => ({
+                ...event,
+                key: event.id,
+              }))}
+              eventClick={handleEventClick}
+              buttonText={{ today: 'Hoje', month: 'Mês', week: 'Semana', day: 'dia' }}
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay',
+              }}
+              locale="pt"
+              eventContent={(eventInfo) => {
+                const isPast = new Date(eventInfo.event.start) < new Date();
+                return (
+                  <div className={`font-[10px] ${isPast ? 'text-red-500' : ''}`}>
+                    <span>{eventInfo.event.title.split(' ')[0]}</span>
+                  </div>
+                );
+              }}
+              height="95%"
+            />
+            {isModalOpen && (
+              <AppointmentsDetails
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                event={selectedEvent}
+              />
+            )}
           </div>
-         
           <div className="modal-actions flex justify-end space-x-3 mt-4">
             <button onClick={handleCloseCalendar} className="bg-gray-400 text-white p-2 rounded">Cancelar</button>
             <button onClick={handleCloseCalendarOpenModal} className="bg-blue-500 text-white p-2 rounded">{newEvent.id ? 'Salvar Alterações' : 'Adicionar'}</button>
           </div>
         </Modal>
-
         <div className="z-0 flex justify-between gap-6 bg-gray-100 p-8 rounded-lg shadow-lg flex-grow w-full">
-          
-        <div className='w-full flex justify-evenly gap-5'>
-          <div className="w-1/2 p-4 bg-white rounded-lg shadow-md">
-            <h2 className="text-xl text-center mb-4">Agendamentos Expirados</h2>
-            {events.length !== 0 ? (
-              <ul>
-                {events
-                  .filter((event) => new Date(event.start) <= new Date())
-                  .sort((a, b) => new Date(a.start) - new Date(b.start))
-                  .map((event) => (
-                    <li key={event.id} className="flex justify-between w-full p-4 mb-2 bg-white rounded-lg shadow-sm">
-                      <div className='flex w-full justify-evenly items-center gap-5 px-4 bg-gray-200 rounded-md'>
-                        <strong>{event.costumer}</strong>
-                        {format(new Date(event.start), 'dd/MM/yyyy')}<p/>
-                        {format(new Date(event.start), 'HH:mm')} até
-                        {format(new Date(event.end), ' HH:mm')}
-                      </div>
-                      <button onClick={() => handleOpenModal(event)} className="bg-blue-500 text-white px-2 text-sm rounded">Baixar</button>
-                    </li>
-                  ))}
-              </ul>
-            ) : (
-              <p className="text-center text-gray-500">Sem agendamentos expirados</p>
-            )}
-          </div>
-          <div className="w-1/2 p-4 bg-white rounded-lg shadow-md">
-            <h2 className="text-xl text-center mb-4">Próximos Agendamentos</h2>
-            {events.length !== 0 ? (
-              <ul>
-                {events
-                  .filter((event) => new Date(event.start) >= new Date())
-                  .sort((a, b) => new Date(a.start) - new Date(b.start))
-                  .map((event) => (
-                    <li key={event.id} className="flex justify-between w-full p-4 mb-2 bg-white rounded-lg shadow-sm">
-                      <div className='flex w-full justify-evenly items-center gap-5 px-4 bg-gray-200 rounded-md'>
-                        <strong>{event.costumer}</strong>
-                        {format(new Date(event.start), 'dd/MM/yyyy')}<p/>
-                        {format(new Date(event.start), 'HH:mm')} até
-                        {format(new Date(event.end), ' HH:mm')}
-                      </div>
-                      <button onClick={() => handleOpenModal(event)} className="bg-blue-500 text-white px-2 text-sm rounded">Editar</button>
-                    </li>
-                  ))}
-              </ul>
-            ) : (
-              <p className="text-center text-gray-500">Sem agendamentos próximos</p>
-            )}
-          </div>
+          <div className='w-full flex justify-evenly gap-5'>
+            <div className="w-1/2 p-4 bg-white rounded-lg shadow-md">
+              <h2 className="text-xl text-center mb-4">Agendamentos Expirados</h2>
+              {events.length !== 0 ? (
+                <ul>
+                  {events
+                    .filter((event) => new Date(event.start) <= new Date())
+                    .sort((a, b) => new Date(a.start) - new Date(b.start))
+                    .map((event) => (
+                      <li key={event.id} className="flex justify-between w-full p-4 mb-2 bg-white rounded-lg shadow-sm">
+                        <div className='flex w-full justify-evenly items-center gap-5 px-4 bg-gray-200 rounded-md'>
+                          <strong>{event.costumer}</strong>
+                          {format(new Date(event.start), 'dd/MM/yyyy')}<p />
+                          {format(new Date(event.start), 'HH:mm')} até
+                          {format(new Date(event.end), ' HH:mm')}
+                        </div>
+                        <button onClick={() => handleOpenModal(event)} className="bg-blue-500 text-white px-2 text-sm rounded">Baixar</button>
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                <p className="text-center text-gray-500">Sem agendamentos expirados</p>
+              )}
+            </div>
+            <div className="w-1/2 p-4 bg-white rounded-lg shadow-md">
+              <h2 className="text-xl text-center mb-4">Próximos Agendamentos</h2>
+              {events.length !== 0 ? (
+                <ul>
+                  {events
+                    .filter((event) => new Date(event.start) >= new Date())
+                    .sort((a, b) => new Date(a.start) - new Date(b.start))
+                    .map((event) => (
+                      <li key={event.id} className="flex justify-between w-full p-4 mb-2 bg-white rounded-lg shadow-sm">
+                        <div className='flex w-full justify-evenly items-center gap-5 px-4 bg-gray-200 rounded-md'>
+                          <strong>{event.costumer}</strong>
+                          {format(new Date(event.start), 'dd/MM/yyyy')}<p />
+                          {format(new Date(event.start), 'HH:mm')} até
+                          {format(new Date(event.end), ' HH:mm')}
+                        </div>
+                        <button onClick={() => handleOpenModal(event)} className="bg-blue-500 text-white px-2 text-sm rounded">Editar</button>
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                <p className="text-center text-gray-500">Sem agendamentos próximos</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
