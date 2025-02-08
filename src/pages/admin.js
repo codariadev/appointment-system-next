@@ -53,26 +53,27 @@ if (!authorized) {
       </div>
         
         <div className="w-full h-full flex items-center justify-center">
-          <div className='grid grid-cols-2 gap-6'>
-          <div className="w-64 bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+          <div className='grid grid-cols-2 gap-36'>
+
+          <div className="w-96 bg-white p-10 rounded-lg shadow-md flex flex-col items-center text-center">
             <h2 className="mb-2 text-xl font-semibold">Funcionários</h2>
             <p className="mb-4 text-gray-600">Gerencie seus colaboradores.</p>
             <Link href="/admin/funcionarios" className="text-blue-600 font-bold hover:underline">Gerenciar Funcionários</Link>
           </div>
 
-          <div className="w-64 bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+          <div className="w-96 bg-white p-10 rounded-lg shadow-md flex flex-col items-center text-center">
             <h2 className="mb-2 text-xl font-semibold">Estoque</h2>
             <p className="mb-4 text-gray-600">Controle de produtos e alertas de reposição.</p>
             <Link href="/admin/estoque" className="text-blue-600 font-bold hover:underline">Controle de Estoque</Link>
           </div>
 
-          <div className="w-64 bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+          <div className="w-96 bg-white p-10 rounded-lg shadow-md flex flex-col items-center text-center">
             <h2 className="mb-2 text-xl font-semibold">Relatórios</h2>
             <p className="mb-4 text-gray-600">Acompanhe o desempenho e o faturamento.</p>
             <Link href="/admin/relatorios" className="text-blue-600 font-bold hover:underline">Ver Relatórios</Link>
           </div>
 
-          <div className="w-64 bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+          <div className="w-96 bg-white p-10 rounded-lg shadow-md flex flex-col items-center text-center">
             <h2 className="mb-2 text-xl font-semibold">Clientes VIP</h2>
             <p className="mb-4 text-gray-600">Gerencie os clientes mais importantes.</p>
             <Link href="#" className="text-blue-600 font-bold hover:underline">Clientes VIP</Link>

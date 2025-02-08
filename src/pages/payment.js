@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { deleteAppointment, fetchAppointments, fetchEmployees, fetchProducts, saveSales } from '@lib/firestoreFunction';
+import { consumeProductStock, deleteAppointment, fetchAppointments, fetchEmployees, fetchProducts, saveSales } from '@lib/firestoreFunction';
 import Layout from '@components/layout';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
@@ -21,6 +21,19 @@ const Payment = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    
+    const handleClickOutside = () => {
+      setSearchTerm('');
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -49,7 +62,9 @@ const Payment = () => {
 
     const loadProducts = async () => {
       const productList = await fetchProducts();
-      setProducts(productList);
+      const filteredProducts = productList.filter(product => product.estoque !== 0);
+      setProducts(filteredProducts);
+
     };
 
     loadClients();
@@ -121,10 +136,11 @@ const Payment = () => {
       });
       setCart([]);
       setTotal(0);
+      setSelectedEmployee(null);
     } else {
       const appointment = clients.find(client => client.id === clientId);
       setSelectedClient(appointment);
-
+  
       if (appointment) {
         let clientServices = [];
         if (Array.isArray(appointment.service)) {
@@ -146,44 +162,52 @@ const Payment = () => {
       }
     }
   };
+  
 
   const handleSale = async () => {
-    const localDate = new Date();
-    const formattedDate = format(localDate, 'dd/MM/yyyy', { locale: ptBR });
-    const formmatedTime = format(localDate, 'HH:mm:ss');
-  
-    if (!selectedClient) {
-      alert('Por favor, selecione um cliente antes de finalizar a venda.');
-      return;
+  const localDate = new Date();
+  const formattedDate = format(localDate, 'dd/MM/yyyy', { locale: ptBR });
+  const formmatedTime = format(localDate, 'HH:mm:ss');
+
+  if (!selectedClient) {
+    alert('Por favor, selecione um cliente antes de finalizar a venda.');
+    return;
+  }
+
+  const saleData = {
+    clientId: selectedClient.id,
+    clientName: selectedClient.name,
+    clientCpf: selectedClient.cpf,
+    employee: selectedClient.id === 'avulso' ? 'Venda Avulsa' : selectedEmployee,
+    total: total,
+    items: cart,
+    date: {
+      data: formattedDate,
+      hora: formmatedTime,
+    },
+  };
+
+  try {
+    for (const item of cart) {
+      if (item.id) {
+        await consumeProductStock(item.id, 1);
+      }
     }
 
-    const saleData = {
-      clientId: selectedClient.id,
-      clientName: selectedClient.name,
-      clientCpf: selectedClient.cpf,
-      employee: Employee.map(emp => emp.name),
-      total: total,
-      items: cart,
-      date: {
-        data: formattedDate,
-        hora: formmatedTime,
-      },
-    };
-  
-    try {
-      await saveSales(saleData);
-      alert('Venda finalizada com sucesso!');
-      await deleteAppointment(selectedClient.id);
-      const updateClients = clients.filter(client => client.id !== selectedClient.id);
-      setClients(updateClients);
-      setCart([]);
-      setTotal(0);
-      setSelectedEmployee(null);
-      setSelectedClient(null);
-    } catch (error) {
-      console.error('Erro ao salvar venda:', error);
-    }
-  };
+    await saveSales(saleData);
+    alert('Venda finalizada com sucesso!');
+
+    const updateClients = clients.filter(client => client.id !== selectedClient.id);
+    setClients(updateClients);
+    setCart([]);
+    setTotal(0);
+    setSelectedEmployee(null);
+    setSelectedClient(null);
+  } catch (error) {
+    console.error('Erro ao salvar venda:', error);
+  }
+};
+
 
   const formatCpfNumber = (cpf) => {
     if (!cpf) return '';
@@ -228,7 +252,7 @@ const Payment = () => {
           </div>
 
           <div className="w-1/3 p-4 bg-gray-800 text-white rounded-lg">
-            <div className="space-y-4">
+            <div className="space-y-4 h-full overflow-hidden">
               <div>
                 <label className="block text-center mb-2">Selecione o Cliente:</label>
                 <select
@@ -256,7 +280,7 @@ const Payment = () => {
                 </div>
               </div>
 
-              <div>
+              <div className='h-full'>
                 <label htmlFor="employee-select" className="block text-center mb-2">Atribuir Funcionário:</label>
                 <select
                   id="employee-select"
@@ -266,12 +290,12 @@ const Payment = () => {
                 >
                   <option value="">Selecione um funcionário</option>
                   {Employee.map((employee, index) => (
-                    <option key={index} value={employee}>
-                      {employee.name} - {employee.role}
+                    <option key={index} value={employee.name}>
+                      {employee.name}
                     </option>
                   ))}
                 </select>
-                <div className="mt-6">
+                <div className="mt-6 h-3/5">
                   <h2 className="text-xl font-semibold">Busca de Produtos/Serviços</h2>
                   <input
                     type="text"
@@ -281,7 +305,7 @@ const Payment = () => {
                     onChange={handleSearchChange}
                     onKeyDown={handleKeyDown}
                   />
-                  <div className="mt-4">
+                  <div className="mt-4 h-full">
                     {searchTerm &&
                       filteredProducts.map((product, index) => (
                         <div
@@ -293,7 +317,8 @@ const Payment = () => {
                           {product.name} - R$ {product.price.toFixed(2)}
                         </div>
                       ))}
-                    <div className="mt-6 text-center">
+                    <div className="mt-6 text-center h-full flex flex-col justify-end gap-10">
+                      <h3>Total: R$ {total.toFixed(2)}</h3>
                       <button
                         onClick={handleSale}
                         className="p-2 bg-blue-500 text-white rounded-lg"

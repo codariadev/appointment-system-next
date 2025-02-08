@@ -414,16 +414,64 @@ export const saveSales = async (sale) => {
 };
 
 export const fetchSales = async () => {
-  checkAuthAndRun(async () => {
-    try {
-      const snapshot = await getDocs(collection(db, await getSalesCollectionPath()));
-      const sales = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const totalSales = sales.reduce((total, sale) => total + sale.total, 0);
-      return { sales, totalSales };
-    } catch (error) {
-      alert("Erro ao buscar vendas.");
-      console.error(error);
+  try {
+    const companyCollectionPath = await getCompanyCollectionPath();
+    if (!companyCollectionPath) {
+      alert("Usuário não autenticado.");
+      window.location.href = "/login";
       return { sales: [], totalSales: 0 };
     }
-  });
+
+    const salesCollectionPath = `${companyCollectionPath}/sales`;
+    const salesCollection = collection(db, salesCollectionPath);
+    const snapshot = await getDocs(salesCollection);
+
+    if (snapshot.empty) {
+      console.log("Nenhuma venda encontrada.");
+      return { sales: [], totalSales: 0 };
+    }
+
+    const sales = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const totalSales = sales.reduce((total, sale) => total + (sale.total || 0), 0);
+
+    return { sales, totalSales };
+  } catch (error) {
+    console.error("Erro ao buscar vendas:", error);
+    alert("Erro ao buscar vendas.");
+    return { sales: [], totalSales: 0 };
+  }
+};
+
+
+//Funções de estoque
+export const consumeProductStock = async (productId, quantity) => {
+  const companyCollectionPath = await getCompanyCollectionPath();
+  if (!companyCollectionPath) {
+    alert("Usuário não autenticado.");
+    window.location.href = "/login";
+    return;
+  }
+
+  try {
+    const productDocRef = doc(db, `${companyCollectionPath}/products`, productId);
+    const productDoc = await getDoc(productDocRef);
+
+    if (productDoc.exists()) {
+      const productData = productDoc.data();
+      const updatedStock = productData.estoque - quantity; // Subtrai a quantidade do estoque
+
+      if (updatedStock < 0) {
+        alert("Estoque insuficiente para realizar a venda.");
+        return;
+      }
+
+      await updateDoc(productDocRef, { estoque: updatedStock });
+      console.log(`Estoque do produto ${productData.name} atualizado. Novo estoque: ${updatedStock}`);
+    } else {
+      alert("Produto não encontrado.");
+    }
+  } catch (error) {
+    alert("Erro ao consumir o estoque.");
+    console.error(error);
+  }
 };
