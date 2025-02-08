@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { auth } from "@lib/firebaseConfig"; // Ajuste o caminho conforme sua estrutura
+import { auth } from "@/lib/firebaseConfig"; // Ajuste o caminho conforme sua estrutura
 import { onAuthStateChanged } from "firebase/auth";
 
 const ProtectedRoute = (WrappedComponent) => {

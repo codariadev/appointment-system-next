@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '@components/layout';
+import Layout from '@/components/layout';
 import Link from 'next/link';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/router';

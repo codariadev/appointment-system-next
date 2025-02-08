@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { fetchAppointments, fetchClients } from '@lib/firestoreFunction';  // Certifique-se de que esses métodos existem
+import { fetchAppointments, fetchClients } from '@/lib/firestoreFunction';  // Certifique-se de que esses métodos existem
 import { format } from 'date-fns';
 import { useRouter } from 'next/router';
-import Layout from '@components/layout';
+import Layout from '@/components/layout';
 import { useAuth } from '@/lib/useAuth';
 
 const Home = () => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
-import { fetchClients, addClient, updateClient, deleteClient } from '@lib/firestoreFunction';
-import Layout from '@components/layout';
+import { fetchClients, addClient, updateClient, deleteClient } from '@/lib/firestoreFunction';
+import Layout from '@/components/layout';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/router';
 

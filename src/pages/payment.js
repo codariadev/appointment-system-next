@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { consumeProductStock, deleteAppointment, fetchAppointments, fetchEmployees, fetchProducts, saveSales } from '@lib/firestoreFunction';
-import Layout from '@components/layout';
+import { consumeProductStock, deleteAppointment, fetchAppointments, fetchEmployees, fetchProducts, saveSales } from '@/lib/firestoreFunction';
+import Layout from '@/components/layout';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
 import { useRouter } from 'next/router';
@@ -203,6 +203,7 @@ const Payment = () => {
     setTotal(0);
     setSelectedEmployee(null);
     setSelectedClient(null);
+    await deleteAppointment(selectedClient.id);
   } catch (error) {
     console.error('Erro ao salvar venda:', error);
   }

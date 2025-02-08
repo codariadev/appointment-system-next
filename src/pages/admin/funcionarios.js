@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
-import { fetchEmployees, addEmployee, updateEmployee, deleteEmployee } from '@lib/firestoreFunction';
-import Layout from '@components/layout';
+import { fetchEmployees, addEmployee, updateEmployee, deleteEmployee } from '@/lib/firestoreFunction';
+import Layout from '@/components/layout';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/router';
 

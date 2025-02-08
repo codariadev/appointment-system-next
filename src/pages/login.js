@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { app } from '@lib/firebaseConfig';
-import LoginRegisterModal from '@modal/loginRegister';
+import { app } from '@/lib/firebaseConfig';
+import LoginRegisterModal from '@/modal/loginRegister';
 import { setUserPersistence } from '@/lib/firestoreFunction';
 
 

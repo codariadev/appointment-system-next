@@ -1,5 +1,5 @@
 // appointmentCrud.js
-import { saveAppointment, fetchAppointments, deleteAppointment, fetchClients, fetchProducts } from '@lib/firestoreFunction';
+import { saveAppointment, fetchAppointments, deleteAppointment, fetchClients, fetchProducts } from '@/lib/firestoreFunction';
 
 export const fetchAllAppointments = async () => {
   try {

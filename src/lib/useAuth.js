@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { auth, db } from "@lib/firebaseConfig"; // Ajuste conforme seu projeto
+import { auth, db } from "@/lib/firebaseConfig"; // Ajuste conforme seu projeto
 import { doc, getDoc } from "firebase/firestore";
 
 export const useAuth = () => {

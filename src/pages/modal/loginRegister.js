@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Select from 'react-select';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import { app } from '@lib/firebaseConfig';
+import { app } from '@/lib/firebaseConfig';
 
 const LoginRegisterModal = ({ isOpen, closeModal }) => {
   if (!isOpen) return null;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchSales, fetchEmployees, fetchProducts } from '@lib/firestoreFunction';
-import Layout from '@components/layout';
+import { fetchSales, fetchEmployees, fetchProducts } from '@/lib/firestoreFunction';
+import Layout from '@/components/layout';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/router';
 import DatePicker from 'react-datepicker';

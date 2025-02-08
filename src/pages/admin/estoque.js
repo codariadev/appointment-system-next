@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { addProduct, deleteProduct, fetchProducts, updateProduct } from '@lib/firestoreFunction';
+import { addProduct, deleteProduct, fetchProducts, updateProduct } from '@/lib/firestoreFunction';
 import Layout from '@/components/layout';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/router';
