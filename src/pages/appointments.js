@@ -7,11 +7,12 @@ import interactionPlugin from '@fullcalendar/interaction';
 import Modal from 'react-modal';
 import Select from 'react-select';
 import { format } from 'date-fns';
-import { saveAppointment, fetchAppointments, fetchClients, deleteAppointment, fetchProducts } from '@lib/firestoreFunction';
+import { fetchClients, fetchProducts } from '@lib/firestoreFunction';
 import Layout from '@components/layout';
 import { useAuth } from '@/lib/useAuth';
 import { useRouter } from 'next/router';
 import AppointmentsDetails from './modal/appointmentsDetails';
+import { fetchAllAppointments, handleSaveAppointment, handleDeleteAppointment } from '@/lib/appointmentsCrud';
 
 const Appointments = () => {
   const [events, setEvents] = useState([]);
@@ -44,12 +45,9 @@ const Appointments = () => {
     Modal.setAppElement('#root');
     const loadAppointmentsAndProducts = async () => {
       try {
-        const appointments = await fetchAppointments();
-        const mappedAppointments = appointments.map((appointment) => ({
-          ...appointment,
-          title: appointment.costumer,
-        }));
-        setEvents(mappedAppointments);
+        const appointments = await fetchAllAppointments();
+        setEvents(appointments);
+
         const clientsData = await fetchClients();
         const formattedClients = clientsData.map((client) => ({
           value: client.name,
@@ -57,6 +55,7 @@ const Appointments = () => {
           cpf: client.cpf
         }));
         setClients(formattedClients);
+
         const productsData = await fetchProducts();
         const filteredServices = productsData
           .filter((product) => product.category == 'Serviço')
@@ -112,58 +111,6 @@ const Appointments = () => {
     setCalendarIsOpen(false);
     handleOpenModal();
   }
-
-  const handleDeleteAppointment = async (appointment) => {
-    try {
-      await deleteAppointment(appointment);
-      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== appointment.id));
-      alert('Agendamento deletado com sucesso.');
-    } catch (error) {
-      console.log('Erro ao deletar:', error);
-    }
-  };
-
-  const handleSaveAppointment = async () => {
-    if (!newEvent.start || !newEvent.end || !newEvent.costumer || !newEvent.service) {
-      alert('Preencha todos os campos antes de salvar.');
-      return;
-    }
-    try {
-      const selectedService = services.find((service) => service.value === newEvent.service);
-      const appointment = {
-        start: newEvent.start,
-        end: newEvent.end,
-        costumer: newEvent.costumer,
-        cpf: newEvent.cpf,
-        service: newEvent.service
-      };
-      if (newEvent.id) {
-        await saveAppointment(appointment, newEvent.id);
-        setEvents((preEvents) => 
-          preEvents.map((event) =>
-            event.id === newEvent.id ? { ...event, ...appointment } : event
-          )
-        );
-        alert('Agendamento atualizado com sucesso.');
-      } else {
-        const id = await saveAppointment(appointment);
-        setEvents((preEvents) => [...preEvents, { id, ...appointment }]);
-        alert('Agendamento salvo com sucesso');
-      }
-      if (selectedService) {
-        setServiceDetails((prevDetails) => [
-          ...prevDetails,
-          {
-            name: selectedService.value,
-            price: selectedService.price,
-          },
-        ]);
-      }
-      handleCloseModal();
-    } catch (error) {
-      console.log('Erro ao salvar o agendamento', error);
-    }
-  };
 
   const handleEventClick = (clickInfo) => {
     setSelectedEvent({
@@ -251,8 +198,8 @@ const Appointments = () => {
           </form>
           <div className="modal-actions flex justify-end space-x-3 mt-4">
             <button onClick={handleCloseModal} className="bg-gray-400 text-white p-2 rounded">Cancelar</button>
-            <button onClick={() => handleDeleteAppointment(newEvent)} className="bg-red-500 text-white p-2 rounded">Deletar</button>
-            <button onClick={handleSaveAppointment} className="bg-blue-500 text-white p-2 rounded">{newEvent.id ? 'Salvar Alterações' : 'Adicionar'}</button>
+            <button onClick={() => handleDeleteAppointment(newEvent, setEvents)} className="bg-red-500 text-white p-2 rounded">Deletar</button>
+            <button onClick={() => handleSaveAppointment(newEvent, services, setEvents, setServiceDetails, handleCloseModal)} className="bg-blue-500 text-white p-2 rounded">{newEvent.id ? 'Salvar Alterações' : 'Adicionar'}</button>
           </div>
         </Modal>
         <Modal
@@ -287,6 +234,7 @@ const Appointments = () => {
               }}
               height="95%"
             />
+            <div>
             {isModalOpen && (
               <AppointmentsDetails
                 isOpen={isModalOpen}
@@ -294,6 +242,7 @@ const Appointments = () => {
                 event={selectedEvent}
               />
             )}
+            </div>
           </div>
           <div className="modal-actions flex justify-end space-x-3 mt-4">
             <button onClick={handleCloseCalendar} className="bg-gray-400 text-white p-2 rounded">Cancelar</button>
